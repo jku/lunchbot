@@ -25,6 +25,87 @@ class Menu:
     def get_content(self):
         return self.get_menu_func (self.url)
 
+    @classmethod
+    def get_content_by_date (cls, url):
+        lines = Menu.get_lines(url)
+
+        today = datetime.date.today()
+        today_str = today.strftime("%-d.%-m.")
+        tomorrow = today + datetime.timedelta(days=1)
+        tomorrow_str = tomorrow.strftime("%-d.%-m.")
+
+        result = []
+        processing_result = False
+
+        for line in lines:
+            if today_str in line:
+                processing_result = True
+                continue
+            elif tomorrow_str in line or len(result) > 7:
+                break
+
+            line = line.strip()
+            if (processing_result and len(line) > 0):
+                if len(line)<8:
+                    # assume price or something similar
+                    result[-1] = result[-1] + " " +line
+                else:
+                    result.append (line)
+
+        return result
+
+    @classmethod
+    def get_content_by_weekday (cls, url):
+        lines = Menu.get_lines(url)
+
+        today = datetime.date.today()
+        today_str = Menu.get_weekday(today)
+        tomorrow = today + datetime.timedelta(days=1)
+        tomorrow_str = Menu.get_weekday(tomorrow)
+
+        result = []
+        processing_result = False
+
+        for line in lines:
+            low_line =line.lower()
+            if today_str in low_line != -1:
+                processing_result = True
+                result = []
+                continue
+            elif tomorrow_str in low_line != -1 or len(result) > 7:
+                processing_result = False
+
+            line = line.strip()
+
+            if (processing_result and len(line) > 0):
+                result.append (line)
+
+        return result
+
+    @staticmethod
+    def get_lines (url):
+        html = urlopen(url).read()
+        text = html2text(html.decode("utf-8"))
+        return text.split("\n")
+
+    @staticmethod
+    def get_weekday (date):
+        weekday = date.strftime ("%w")
+        if weekday == "0":
+            return "sunnuntai"
+        elif weekday == "1":
+            return "maanantai"
+        elif weekday == "2":
+            return "tiistai"
+        elif weekday == "3":
+            return "keskiviikko"
+        elif weekday == "4":
+            return "torstai"
+        elif weekday == "5":
+            return "perjantai"
+        return "lauantai"
+
+
 class Restaurant:
     def __init__(self, name, menus):
         self.name = name
@@ -38,86 +119,6 @@ class Restaurant:
                 break
         return menu_lines
 
-def get_lines (url):
-    html = urlopen(url).read()
-    text = html2text(html.decode("utf-8"))
-    return text.split("\n")
-
-def get_menu_by_date (url):
-    lines = get_lines(url)
-
-    today = datetime.date.today()
-    today_str = today.strftime("%-d.%-m.")
-    tomorrow = today + datetime.timedelta(days=1)
-    tomorrow_str = tomorrow.strftime("%-d.%-m.")
-
-    result = []
-    processing_result = False
-
-    for line in lines:
-        if today_str in line:
-            processing_result = True
-            continue
-        elif tomorrow_str in line or len(result) > 7:
-            break
-
-        line = line.strip()
-        if (processing_result and len(line) > 0):
-            if len(line)<8:
-                # assume price or something similar
-                result[-1] = result[-1] + " " +line
-            else:
-                result.append (line)
-
-    return result
-
-def get_weekday (date):
-    weekday = date.strftime ("%w")
-    if weekday == "0":
-        return "sunnuntai"
-    elif weekday == "1":
-        return "maanantai"
-    elif weekday == "2":
-        return "tiistai"
-    elif weekday == "3":
-        return "keskiviikko"
-    elif weekday == "4":
-        return "torstai"
-    elif weekday == "5":
-        return "perjantai"
-    return "lauantai"
-
-def get_menu_by_weekday (url):
-    lines = get_lines(url)
-    
-    today = datetime.date.today()
-    today_str = get_weekday(today)
-    tomorrow = today + datetime.timedelta(days=1)
-    tomorrow_str = get_weekday(tomorrow)
-
-    result = []
-    processing_result = False
-
-    for line in lines:
-        low_line =line.lower()
-        if today_str in low_line != -1:
-            processing_result = True
-            result = []
-            continue
-        elif tomorrow_str in low_line != -1 or len(result) > 7:
-            processing_result = False
-
-        line = line.strip()
-
-        if (processing_result and len(line) > 0):
-            result.append (line)
-
-    return result
-
-def get_blue_peter_menu (url):
-    today = datetime.date.today()
-    week = today.strftime ("%-V")
-    return ["http://www.bluepeter.fi/images/lounasvko%s.pdf\n" % (week)]
 
 def send_menu (name, menu_lines):
     if len(menu_lines) == 0:
@@ -135,7 +136,6 @@ def handle_cmd_list (nick):
         for r in restaurants[1:]:
             output = output + ", " + r.name
         ircsock.send ("PRIVMSG %s : %s\n" % (channel, output))
-
 
 def handle_cmd_menu (nick, options):
     if options:
@@ -170,19 +170,23 @@ def handle_commands (nick, message):
         ircsock.send("PRIVMSG %s :%s: try 'menu [<restaurant>]' or 'list'\n" % (channel, nick))
 
 
+def get_blue_peter_content (url):
+    today = datetime.date.today()
+    week = today.strftime ("%-V")
+    return ["http://www.bluepeter.fi/images/lounasvko%s.pdf\n" % (week)]
 
 restaurants = [
     Restaurant ("Luomumamas",
-                [Menu (get_menu_by_date, "http://www.sisdeli.fi/weegee-lounas.php"),
-                 Menu (get_menu_by_date, "http://weegee.fi/fi-FI/Palvelut/Ravintola_ja_catering_/SIS_DeliCafn_lounaslista(21617)")]),
+                [Menu (Menu.get_content_by_date, "http://www.sisdeli.fi/weegee-lounas.php"),
+                 Menu (Menu.get_content_by_date, "http://weegee.fi/fi-FI/Palvelut/Ravintola_ja_catering_/SIS_DeliCafn_lounaslista(21617)")]),
     Restaurant ("Sumo",
-                [Menu (get_menu_by_weekday, "http://www.ravintolasumo.fi/lounas.html")]),
+                [Menu (Menu.get_content_by_weekday, "http://www.ravintolasumo.fi/lounas.html")]),
     Restaurant ("Ukkohauki",
-                [Menu (get_menu_by_date, "http://www.ravintolaukkohauki.fi/index.php?page=1008&lang=1")]),
+                [Menu (Menu.get_content_by_date, "http://www.ravintolaukkohauki.fi/index.php?page=1008&lang=1")]),
     Restaurant ("Keilaranta",
-                [Menu (get_menu_by_weekday, "http://www.ravintolakeilaranta.fi/pages/lounaslista.php")]),
+                [Menu (Menu.get_content_by_weekday, "http://www.ravintolakeilaranta.fi/pages/lounaslista.php")]),
     Restaurant ("Blue Peter",
-                [Menu (get_blue_peter_menu, "http://www.bluepeter.fi")]),
+                [Menu (get_blue_peter_content, "http://www.bluepeter.fi")]),
 ]
 
 botnick = "lunchbot"
@@ -198,7 +202,7 @@ parser.add_argument('-s', '--server', help='IRC server address')
 parser.add_argument('-p', '--port', type=int, help='IRC server port')
 parser.add_argument('--ssl', action="store_true", help='Use SSL')
 parser.add_argument('-c', '--channel', help='IRC channel to join')
-parser.add_argument('--debug', action="store_true", help='Print more debug output')
+parser.add_argument('-d', '--debug', action="store_true", help='Print more debug output')
 args = parser.parse_args()
 
 if args.server:
