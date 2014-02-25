@@ -175,6 +175,9 @@ def get_blue_peter_content (url):
     week = today.strftime ("%-V")
     return ["http://www.bluepeter.fi/images/lounasvko%s.pdf\n" % (week)]
 
+def get_toro_content (url):
+    return [Menu.get_content_by_weekday (url)[0]]
+
 restaurants = [
     Restaurant ("Luomumamas",
                 [Menu (Menu.get_content_by_date, "http://www.sisdeli.fi/weegee-lounas.php"),
@@ -187,6 +190,8 @@ restaurants = [
                 [Menu (Menu.get_content_by_weekday, "http://www.ravintolakeilaranta.fi/pages/lounaslista.php")]),
     Restaurant ("Blue Peter",
                 [Menu (get_blue_peter_content, "http://www.bluepeter.fi")]),
+    Restaurant ("Toro",
+                [Menu (get_toro_content, "http://www.grillitoro.fi/lounas.html")]),
 ]
 
 botnick = "lunchbot"
