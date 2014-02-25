@@ -189,15 +189,15 @@ restaurants = [
                 [Menu (get_blue_peter_content, "http://www.bluepeter.fi")]),
 ]
 
-botnick = "lunchbot"
-
 # Default argument values for testing
+botnick = "lunchbot"
 server = "irc.gnome.org"
 port = 6667
 channel = "#lunchbottest"
 use_ssl = False
 
 parser = argparse.ArgumentParser(description='Lunch bot for IRC.')
+parser.add_argument('-n', '--nick', help='Bot nickname')
 parser.add_argument('-s', '--server', help='IRC server address')
 parser.add_argument('-p', '--port', type=int, help='IRC server port')
 parser.add_argument('--ssl', action="store_true", help='Use SSL')
@@ -205,6 +205,8 @@ parser.add_argument('-c', '--channel', help='IRC channel to join')
 parser.add_argument('-d', '--debug', action="store_true", help='Print more debug output')
 args = parser.parse_args()
 
+if args.nick:
+    botnick = args.nick
 if args.server:
     server = args.server
 if args.port:
