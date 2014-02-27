@@ -280,5 +280,5 @@ while True:
         print "Socket timed out, re-connecting right away..."
     except socket.error, err:
         # e.g. gethostbyname error
-        print "Socket error: " + err + ". Retrying after 60s..."
+        print "Socket error: %s. Retrying after 60s..." % err
         time.sleep (60)
