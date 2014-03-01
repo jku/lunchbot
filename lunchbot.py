@@ -11,6 +11,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import pyPdf, io, re
 import socket, ssl
 import sys, argparse, time
 from urllib import urlopen
@@ -172,8 +173,15 @@ def handle_commands (nick, message):
 
 def get_blue_peter_content (url):
     today = datetime.date.today()
-    week = today.strftime ("%-V")
-    return ["http://www.bluepeter.fi/images/lounasvko%s.pdf\n" % (week)]
+    week = today.strftime("%V")
+
+    pdf_raw_data = urlopen("http://www.bluepeter.fi/images/lounasvko%s.pdf\n" % (week)).read()
+    pdf = pyPdf.PdfFileReader(io.BytesIO(pdf_raw_data))
+    pdf_text = pdf.pages[0].extractText()
+    pdf_text = re.sub("Liikelounasmenu ", '', pdf_text)
+
+    delimiters = "MAANANTAI|TIISTAI|KESKIVIIKKO|TORSTAI|PERJANTAI|VL ="
+    return [re.split(delimiters, pdf_text)[datetime.date.weekday(today) + 1]]
 
 def get_toro_content (url):
     return [Menu.get_content_by_weekday (url)[0]]
