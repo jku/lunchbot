@@ -74,12 +74,16 @@ class Menu:
 
     @staticmethod
     def get_lines (url):
-        html = urlopen(url).read()
-        text = html2text(html.decode("utf-8"))
-        # workaround a html2text bug
-        text = text.replace("&nbsp_place_holder;", " ");
+        try:
+            html = urlopen(url).read()
+            text = html2text(html.decode("utf-8"))
 
-        return text.split("\n")
+            # workaround a html2text bug
+            text = text.replace("&nbsp_place_holder;", " ");
+            return text.split("\n")
+        except Exception, err:
+            print "Failed to get lines: %s" % err
+            return []
 
     @staticmethod
     def get_weekday (date):
