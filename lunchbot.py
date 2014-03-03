@@ -79,7 +79,11 @@ class Menu:
             line = line.strip()
 
             if (processing_result and len(line) > 0):
-                result.append (line)
+                if len(result)>0 and len(line)<8:
+                    # assume price or something similar
+                    result[-1] = result[-1] + " " +line
+                else:
+                    result.append (line)
 
         return result
 
@@ -87,6 +91,9 @@ class Menu:
     def get_lines (url):
         html = urlopen(url).read()
         text = html2text(html.decode("utf-8"))
+        # workaround a html2text bug
+        text = text.replace("&nbsp_place_holder;", " ");
+
         return text.split("\n")
 
     @staticmethod
