@@ -47,7 +47,7 @@ class Menu:
 
             line = line.strip()
             if (processing_result and len(line) > 0):
-                if len(line)<8:
+                if len(result)>0 and len(line)<8:
                     # assume price or something similar
                     result[-1] = result[-1] + " " +line
                 else:
