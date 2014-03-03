@@ -26,24 +26,19 @@ class Menu:
     def get_content(self):
         return self.get_menu_func (self.url)
 
-    @classmethod
-    def get_content_by_date (cls, url):
-        lines = Menu.get_lines(url)
-
-        today = datetime.date.today()
-        today_str = today.strftime("%-d.%-m.")
-        tomorrow = today + datetime.timedelta(days=1)
-        tomorrow_str = tomorrow.strftime("%-d.%-m.")
-
+    @staticmethod
+    def process_menu_lines (lines, start, end):
         result = []
         processing_result = False
 
         for line in lines:
-            if today_str in line:
+            low_line =line.lower()
+            if start in low_line:
                 processing_result = True
+                result = []
                 continue
-            elif tomorrow_str in line or len(result) > 7:
-                break
+            elif end in low_line or len(result) > 7:
+                processing_result = False
 
             line = line.strip()
             if (processing_result and len(line) > 0):
@@ -54,6 +49,17 @@ class Menu:
                     result.append (line)
 
         return result
+
+    @classmethod
+    def get_content_by_date (cls, url):
+        lines = Menu.get_lines(url)
+
+        today = datetime.date.today()
+        today_str = today.strftime("%-d.%-m.")
+        tomorrow = today + datetime.timedelta(days=1)
+        tomorrow_str = tomorrow.strftime("%-d.%-m.")
+
+        return cls.process_menu_lines (lines, today_str, tomorrow_str)
 
     @classmethod
     def get_content_by_weekday (cls, url):
@@ -64,28 +70,7 @@ class Menu:
         tomorrow = today + datetime.timedelta(days=1)
         tomorrow_str = Menu.get_weekday(tomorrow)
 
-        result = []
-        processing_result = False
-
-        for line in lines:
-            low_line =line.lower()
-            if today_str in low_line != -1:
-                processing_result = True
-                result = []
-                continue
-            elif tomorrow_str in low_line != -1 or len(result) > 7:
-                processing_result = False
-
-            line = line.strip()
-
-            if (processing_result and len(line) > 0):
-                if len(result)>0 and len(line)<8:
-                    # assume price or something similar
-                    result[-1] = result[-1] + " " +line
-                else:
-                    result.append (line)
-
-        return result
+        return cls.process_menu_lines (lines, today_str, tomorrow_str)
 
     @staticmethod
     def get_lines (url):
