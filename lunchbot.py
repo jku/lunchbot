@@ -168,16 +168,27 @@ def handle_commands (nick, message):
 
 
 def get_blue_peter_content (url):
-    today = datetime.date.today()
-    week = today.strftime("%V")
+    try:
+        today = datetime.date.today()
 
-    pdf_raw_data = urlopen("http://www.bluepeter.fi/images/lounasvko%s.pdf\n" % (week)).read()
-    pdf = pyPdf.PdfFileReader(io.BytesIO(pdf_raw_data))
-    pdf_text = pdf.pages[0].extractText()
-    pdf_text = re.sub("Liikelounasmenu ", '', pdf_text)
+        html = urlopen(url).read()
+        btn = html.index ("btnlounaslista.gif")
+        end = html[:btn].rindex ("pdf") + 3
+        start = html[:end].rindex ("http://")
+        pdf_url = html[start:end]
+        print pdf_url
 
-    delimiters = "MAANANTAI|TIISTAI|KESKIVIIKKO|TORSTAI|PERJANTAI|VL ="
-    return [re.split(delimiters, pdf_text)[datetime.date.weekday(today) + 1]]
+        pdf_raw_data = urlopen(pdf_url).read()
+
+        pdf = pyPdf.PdfFileReader(io.BytesIO(pdf_raw_data))
+        pdf_text = pdf.pages[0].extractText()
+        pdf_text = re.sub("Liikelounasmenu ", '', pdf_text)
+
+        delimiters = "MAANANTAI|TIISTAI|KESKIVIIKKO|TORSTAI|PERJANTAI|VL ="
+        return [re.split(delimiters, pdf_text)[datetime.date.weekday(today) + 1]]
+    except ValueError:
+        print "Failed to find Blue peter pdf";
+        return []
 
 def get_toro_content (url):
     return [Menu.get_content_by_weekday (url)[0]]
@@ -193,7 +204,7 @@ restaurants = [
     Restaurant ("Keilaranta",
                 [Menu (Menu.get_content_by_weekday, "http://www.ravintolakeilaranta.fi/pages/lounaslista.php")]),
     Restaurant ("Blue Peter",
-                [Menu (get_blue_peter_content, "http://www.bluepeter.fi")]),
+                [Menu (get_blue_peter_content, "http://www.bluepeter.fi/articles/292/")]),
     Restaurant ("Toro",
                 [Menu (get_toro_content, "http://www.grillitoro.fi/lounas.html")]),
 ]
