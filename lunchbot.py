@@ -182,7 +182,6 @@ def get_blue_peter_content (url):
         end = html[:btn].rindex ("pdf") + 3
         start = html[:end].rindex ("http://")
         pdf_url = html[start:end]
-        print pdf_url
 
         pdf_raw_data = urlopen(pdf_url).read()
 
