@@ -258,43 +258,51 @@ while True:
             ircsock = ssl.wrap_socket (s)
         else:
             ircsock = s
+
         ircsock.send("USER "+ botnick +" "+ botnick +" "+ botnick + " Lunch bot\n")
         ircsock.send("NICK "+ botnick +"\n")
-        time.sleep(1)
-        ircsock.send("JOIN "+ channel +"\n")
 
         # Start listening for commands
         while True:
             # Block here until we have data (or timeout)
-            ircmsg = ircsock.recv(2048)
-            if len(ircmsg) == 0:
+            lines = ircsock.recv(2048)
+            if len(lines) == 0:
                 print "Disconnected"
                 break
 
-            # TODO: buffer data until newline
-            # TODO: handle one line at a time
-            ircmsg = ircmsg.rstrip('\n\r')
-            ircmsg = ircmsg.strip(' ')
+            for ircmsg in lines.split('\r\n'):
+                ircmsg = ircmsg.strip(' ')
 
-            if debug:
-                print ("DEBUG: " + ircmsg)
+                if (len(ircmsg) == 0):
+                    continue
 
-            if ircmsg.startswith("PING "):
-                ircsock.send("PONG %s\n" % botnick)
-                continue
+                if debug:
+                    print ("DEBUG: " + ircmsg)
 
-            try:
-                [sender, cmd] = ircmsg.split (None, 1)
+                if ircmsg.startswith("PING "):
+                    ircsock.send("PONG %s\n" % botnick)
+                    continue
 
-                if cmd.startswith ("PRIVMSG"):
-                    [privmsg, target, msg] = cmd.split (None, 2)                
-                    if msg.startswith(":" + botnick):
-                        nick=sender.split ('!',1)[0][1:]
-                        bot_cmd = msg.split (None,1)[1]
-                        print("CMD (%s): %s" % (nick, bot_cmd))
-                        handle_commands (nick, bot_cmd)
-            except ValueError:
-                continue
+                try:
+                    [sender, cmd] = ircmsg.split (None, 1)
+
+                    if cmd.startswith ("376 " + botnick):
+                        # end of MOTD, joining should be ok now
+                        ircsock.send("JOIN "+ channel +"\n")
+
+                    elif cmd.startswith ("PRIVMSG"):
+                        [privmsg, target, msg] = cmd.split (None, 2)
+                        if msg.startswith(":" + botnick):
+                            nick=sender.split ('!',1)[0][1:]
+                            bot_cmd = msg.split (None,1)[1]
+                            print("CMD (%s): %s" % (nick, bot_cmd))
+                            handle_commands (nick, bot_cmd)
+                        elif "Luomumamas: Ei lounasta." in msg:
+                            nick=sender.split ('!',1)[0][1:]
+                            handle_commands (nick, "menu mamas")
+
+                except ValueError:
+                    continue
 
         # Disconnecting
         break;
