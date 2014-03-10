@@ -1,3 +1,5 @@
+# coding: utf-8
+
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -76,7 +78,11 @@ class Menu:
     def get_lines (url):
         try:
             html = urlopen(url).read()
-            text = html2text(html.decode("utf-8"))
+            # make random guesses on the document coding
+            try:
+                text = html2text(html.decode("utf-8"))
+            except Exception:
+                text = html2text(html.decode("latin-1", "ignore"))
 
             # workaround a html2text bug
             text = text.replace("&nbsp_place_holder;", " ");
@@ -194,6 +200,8 @@ def get_toro_content (url):
     return [Menu.get_content_by_weekday (url)[0]]
 
 restaurants = [
+    Restaurant ("Kylä",
+                [Menu (Menu.get_content_by_date, "http://www.tapiolankyla.fi")]),
     Restaurant ("Luomumamas",
                 [Menu (Menu.get_content_by_date, "http://www.sisdeli.fi/weegee-lounas.php"),
                  Menu (Menu.get_content_by_date, "http://weegee.fi/fi-FI/Palvelut/Ravintola_ja_catering_/SIS_DeliCafn_lounaslista(21617)")]),
