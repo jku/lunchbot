@@ -213,6 +213,8 @@ restaurants = [
                 [Menu (get_blue_peter_content, "http://www.bluepeter.fi/articles/292/")]),
     Restaurant ("Toro",
                 [Menu (get_toro_content, "http://www.grillitoro.fi/lounas.html")]),
+    Restaurant ("Marine",
+                [Menu (Menu.get_content_by_weekday, "http://www.ravintolamarine.fi/Lounas")]),
 ]
 
 # Default argument values for testing
