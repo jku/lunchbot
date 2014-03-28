@@ -215,6 +215,8 @@ restaurants = [
                 [Menu (get_toro_content, "http://www.grillitoro.fi/lounas.html")]),
     Restaurant ("Marine",
                 [Menu (Menu.get_content_by_weekday, "http://www.ravintolamarine.fi/Lounas")]),
+    Restaurant ("Villa Pentry",
+                [Menu (Menu.get_content_by_weekday, "http://www.villapentry.fi/?p=lounas")]),
 ]
 
 # Default argument values for testing
