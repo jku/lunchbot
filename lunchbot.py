@@ -207,8 +207,6 @@ restaurants = [
                 [Menu (Menu.get_content_by_weekday, "http://www.ravintolasumo.fi/lounas.html")]),
     Restaurant ("Ukkohauki",
                 [Menu (Menu.get_content_by_date, "http://www.ravintolaukkohauki.fi/index.php?page=1008&lang=1")]),
-    Restaurant ("Keilaranta",
-                [Menu (Menu.get_content_by_weekday, "http://www.ravintolakeilaranta.fi/pages/lounaslista.php")]),
     Restaurant ("Blue Peter",
                 [Menu (get_blue_peter_content, "http://www.bluepeter.fi/articles/292/")]),
     Restaurant ("Toro",
