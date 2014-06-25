@@ -199,10 +199,16 @@ def get_toro_content (url):
     return [Menu.get_content_by_weekday (url)[0]]
 
 restaurants = [
-    Restaurant ("Kylä",
-                [Menu (Menu.get_content_by_date, "http://www.tapiolankyla.fi")]),
-    Restaurant ("Luomumamas",
-                [Menu (Menu.get_content_by_date, "http://weegee.fi/fi-FI/Palvelut/Ravintola_ja_catering_/SIS_DeliCafn_lounaslista(21617)")]),
+## Summer break
+#    Restaurant ("Kylä",
+#                [Menu (Menu.get_content_by_weekday, "http://www.tapiolankyla.fi")]),
+#    Restaurant ("Luomumamas",
+#                [Menu (Menu.get_content_by_date, "http://weegee.fi/fi-FI/Palvelut/Ravintola_ja_catering_/SIS_DeliCafn_lounaslista(21617)")]),
+
+    Restaurant ("1951",
+                [Menu (Menu.get_content_by_date, "http://www.keilaniemi.fi/lounasravintola/ravintola-1951/")]),
+    Restaurant ("Keilalahden ranta",
+                [Menu (Menu.get_content_by_date, "http://www.keilaniemi.fi/lounasravintola/ravintola-keilalahden-ranta/")]),
     Restaurant ("Sumo",
                 [Menu (Menu.get_content_by_weekday, "http://www.ravintolasumo.fi/lounas.html")]),
     Restaurant ("Ukkohauki",
@@ -214,7 +220,7 @@ restaurants = [
     Restaurant ("Marine",
                 [Menu (Menu.get_content_by_weekday, "http://www.ravintolamarine.fi/Lounas")]),
     Restaurant ("Villa Pentry",
-                [Menu (Menu.get_content_by_weekday, "http://www.villapentry.fi/?p=lounas")]),
+                [Menu (Menu.get_content_by_weekday, "http://www.villapentry.fi/lounaslista/")]),
 ]
 
 # Default argument values for testing
