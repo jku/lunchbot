@@ -13,12 +13,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import pyPdf, io, re
+import io, re
 import socket, ssl
 import sys, argparse, time
 from urllib import urlopen
 from html2text import html2text
 import datetime
+
+# Debian sid has pyPDF2, jessie and earlier have pyPDF.
+try:
+    import pyPdf
+except ImportError:
+    import PyPDF2 as pyPdf
 
 class Menu:
     def __init__(self, get_menu_func, url):
