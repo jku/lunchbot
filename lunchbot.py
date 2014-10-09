@@ -199,12 +199,11 @@ def get_toro_content (url):
     return [Menu.get_content_by_weekday (url)[0]]
 
 restaurants = [
-## Summer break
+# Kylä decided images in PDF are a great way to publish text information
 #    Restaurant ("Kylä",
 #                [Menu (Menu.get_content_by_weekday, "http://www.tapiolankyla.fi")]),
-#    Restaurant ("Luomumamas",
-#                [Menu (Menu.get_content_by_date, "http://weegee.fi/fi-FI/Palvelut/Ravintola_ja_catering_/SIS_DeliCafn_lounaslista(21617)")]),
-
+    Restaurant ("Luomumamas",
+                [Menu (Menu.get_content_by_weekday, "http://weegee.fi/fi-FI/Palvelut/Ravintola_ja_catering_/SIS_DeliCafn_lounaslista(21617)")]),
     Restaurant ("1951",
                 [Menu (Menu.get_content_by_date, "http://www.keilaniemi.fi/lounasravintola/ravintola-1951/")]),
     Restaurant ("Keilalahden ranta",
