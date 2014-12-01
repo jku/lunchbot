@@ -20,6 +20,8 @@ import sys, argparse, time
 from urllib import urlopen
 from html2text import html2text
 import datetime
+from lxml import html
+import requests
 
 # Debian sid has pyPDF2, jessie and earlier have pyPDF.
 try:
@@ -205,10 +207,16 @@ def get_blue_peter_content (url):
 def get_toro_content (url):
     return [Menu.get_content_by_weekday (url)[0]]
 
+def get_kyla_pdf (url):
+    page = requests.get(url)
+    tree = html.fromstring(page.text)
+    pdflink = tree.xpath('//a[contains(text(), "LOUNASVIIKKO")]/@href')
+    pdflink = url + pdflink[0]
+    return [pdflink]
+
 restaurants = [
-# Kylä decided images in PDF are a great way to publish text information
-#    Restaurant ("Kylä",
-#                [Menu (Menu.get_content_by_weekday, "http://www.tapiolankyla.fi")]),
+    Restaurant ("Kylä",
+                [Menu (get_kyla_pdf, 'http://www.tapiolankyla.fi')]),
     Restaurant ("Luomumamas",
                 [Menu (Menu.get_content_by_weekday, "http://weegee.fi/fi-FI/Palvelut/Ravintola_ja_catering_/SIS_DeliCafn_lounaslista(21617)")]),
     Restaurant ("1951",
