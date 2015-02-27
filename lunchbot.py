@@ -241,6 +241,7 @@ server = "irc.gnome.org"
 port = 6667
 channel = "#lunchbottest"
 use_ssl = False
+password = None
 
 parser = argparse.ArgumentParser(description='Lunch bot for IRC.')
 parser.add_argument('-n', '--nick', help='Bot nickname')
@@ -249,6 +250,7 @@ parser.add_argument('-p', '--port', type=int, help='IRC server port')
 parser.add_argument('--ssl', action="store_true", help='Use SSL')
 parser.add_argument('-c', '--channel', help='IRC channel to join')
 parser.add_argument('-d', '--debug', action="store_true", help='Print more debug output')
+parser.add_argument('-a', '--password', help='Password to identify with')
 args = parser.parse_args()
 
 if args.nick:
@@ -261,7 +263,7 @@ if args.channel:
     channel = args.channel
 use_ssl = args.ssl
 debug = args.debug
-
+password = args.password
 
 # Industrial strength main loop
 while True:
@@ -277,8 +279,10 @@ while True:
         else:
             ircsock = s
 
-        ircsock.send("USER "+ botnick +" "+ botnick +" "+ botnick + " Lunch bot\n")
+        ircsock.send("USER "+ botnick +" "+ botnick +" "+ botnick + " :mr. Lunch Bot\n")
         ircsock.send("NICK "+ botnick +"\n")
+        if (password):
+            ircsock.send("PRIVMSG NickServ : identify %s\n" % password)
 
         # Start listening for commands
         while True:
@@ -305,9 +309,11 @@ while True:
                     [sender, cmd] = ircmsg.split (None, 1)
 
                     if cmd.startswith ("376 " + botnick):
-                        # end of MOTD, joining should be ok now
+                        # end of MOTD, joining is normally ok
                         ircsock.send("JOIN "+ channel +"\n")
-
+                    elif cmd.startswith ("NOTICE %s :You are now identified" % botnick):
+                        # try joining after nickserv approval as well
+                        ircsock.send("JOIN "+ channel +"\n")
                     elif cmd.startswith ("PRIVMSG"):
                         [privmsg, target, msg] = cmd.split (None, 2)
                         if msg.startswith(":" + botnick):
@@ -315,9 +321,6 @@ while True:
                             bot_cmd = msg.split (None,1)[1]
                             print("CMD (%s): %s" % (nick, bot_cmd))
                             handle_commands (nick, bot_cmd)
-                        elif "Luomumamas: Ei lounasta." in msg:
-                            nick=sender.split ('!',1)[0][1:]
-                            handle_commands (nick, "menu mamas")
 
                 except ValueError:
                     continue
