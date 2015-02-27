@@ -319,7 +319,8 @@ while True:
                         if msg.startswith(":" + botnick):
                             nick=sender.split ('!',1)[0][1:]
                             bot_cmd = msg.split (None,1)[1]
-                            print("CMD (%s): %s" % (nick, bot_cmd))
+                            if debug:
+                                print("CMD (%s): %s" % (nick, bot_cmd))
                             handle_commands (nick, bot_cmd)
 
                 except ValueError:
