@@ -131,23 +131,26 @@ class Restaurant:
                 break
         return menu_lines
 
+def send_msg (msg):
+    ircsock.send (msg)
+    time.sleep (0.41)
 
 def send_menu (name, menu_lines):
     if len(menu_lines) == 0:
-        ircsock.send ("PRIVMSG %s : %s: No menu for today :(\n" % (channel, name))
+        send_msg ("PRIVMSG %s : %s: No menu for today :(\n" % (channel, name))
     elif len(menu_lines) == 1:
-        ircsock.send ("PRIVMSG %s : %s: %s\n" % (channel, name, menu_lines[0].encode("utf-8")))
+        send_msg ("PRIVMSG %s : %s: %s\n" % (channel, name, menu_lines[0].encode("utf-8")))
     else:
-        ircsock.send ("PRIVMSG %s : %s:\n" % (channel, name))
+        send_msg ("PRIVMSG %s : %s:\n" % (channel, name))
         for line in menu_lines:
-            ircsock.send ("PRIVMSG %s : | %s\n" % (channel, line.encode("utf-8")))
+            send_msg ("PRIVMSG %s : | %s\n" % (channel, line.encode("utf-8")))
 
 def handle_cmd_list (nick):
     if len(restaurants) > 0:
         output = restaurants[0].name
         for r in restaurants[1:]:
             output = output + ", " + r.name
-        ircsock.send ("PRIVMSG %s : %s\n" % (channel, output))
+        send_msg ("PRIVMSG %s : %s\n" % (channel, output))
 
 def handle_cmd_menu (nick, options):
     if options:
@@ -162,7 +165,7 @@ def handle_cmd_menu (nick, options):
                     match = True
 
         if not match:
-            ircsock.send ("PRIVMSG %s : No such restaurant '%s'\n" % (channel, options))
+            send_msg ("PRIVMSG %s : No such restaurant '%s'\n" % (channel, options))
     else:
         for r in restaurants:
             menu_lines = r.get_menu()
@@ -179,7 +182,7 @@ def handle_commands (nick, message):
     elif message.startswith("list"):
         handle_cmd_list(nick)
     else:
-        ircsock.send("PRIVMSG %s :%s: try 'menu [<restaurant>]' or 'list'\n" % (channel, nick))
+        send_msg("PRIVMSG %s :%s: try 'menu [<restaurant>]' or 'list'\n" % (channel, nick))
 
 
 def get_blue_peter_content (url):
@@ -233,6 +236,8 @@ restaurants = [
                 [Menu (get_toro_content, "http://www.grillitoro.fi/lounas.html")]),
     Restaurant ("Villa Pentry",
                 [Menu (Menu.get_content_by_weekday, "http://www.villapentry.fi/lounaslista/")]),
+    Restaurant ("Dansan",
+                [Menu (Menu.get_content_by_weekday, "http://dansan.fi/index.php?/muutruokalistat/")]),
 ]
 
 # Default argument values for testing
@@ -279,10 +284,10 @@ while True:
         else:
             ircsock = s
 
-        ircsock.send("USER "+ botnick +" "+ botnick +" "+ botnick + " :mr. Lunch Bot\n")
-        ircsock.send("NICK "+ botnick +"\n")
+        send_msg("USER "+ botnick +" "+ botnick +" "+ botnick + " :mr. Lunch Bot\n")
+        send_msg("NICK "+ botnick +"\n")
         if (password):
-            ircsock.send("PRIVMSG NickServ : identify %s\n" % password)
+            send_msg("PRIVMSG NickServ : identify %s\n" % password)
 
         # Start listening for commands
         while True:
@@ -302,7 +307,7 @@ while True:
                     print ("DEBUG: " + ircmsg)
 
                 if ircmsg.startswith("PING "):
-                    ircsock.send("PONG %s\n" % botnick)
+                    send_msg("PONG %s\n" % botnick)
                     continue
 
                 try:
@@ -310,10 +315,10 @@ while True:
 
                     if cmd.startswith ("376 " + botnick):
                         # end of MOTD, joining is normally ok
-                        ircsock.send("JOIN "+ channel +"\n")
+                        send_msg("JOIN "+ channel +"\n")
                     elif cmd.startswith ("NOTICE %s :You are now identified" % botnick):
                         # try joining after nickserv approval as well
-                        ircsock.send("JOIN "+ channel +"\n")
+                        send_msg("JOIN "+ channel +"\n")
                     elif cmd.startswith ("PRIVMSG"):
                         [privmsg, target, msg] = cmd.split (None, 2)
                         if msg.startswith(":" + botnick):
