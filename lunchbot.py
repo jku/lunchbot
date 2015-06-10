@@ -133,7 +133,7 @@ class Restaurant:
 
 def send_msg (msg):
     ircsock.send (msg)
-    time.sleep (0.41)
+    time.sleep (0.5)
 
 def send_menu (name, menu_lines):
     if len(menu_lines) == 0:
@@ -229,7 +229,7 @@ restaurants = [
     Restaurant ("Sumo",
                 [Menu (Menu.get_content_by_weekday, "http://www.ravintolasumo.fi/lounas.html")]),
     Restaurant ("Ukkohauki",
-                [Menu (Menu.get_content_by_date, "http://www.ravintolaukkohauki.fi/index.php?page=1008&lang=1")]),
+                [Menu (Menu.get_content_by_weekday, "http://www.ravintolaukkohauki.fi/lounas-take-away")]),
     Restaurant ("Blue Peter",
                 [Menu (get_blue_peter_content, "http://www.bluepeter.fi/articles/292/")]),
     Restaurant ("Toro",
